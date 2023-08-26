@@ -1,0 +1,109 @@
+version: '3'
+
+networks:
+  laravel:
+
+services:
+  catalog-service:
+    build:
+      context: .
+      dockerfile: nginx.dockerfile
+    container_name: catalog-service
+    ports:
+      - 80:80
+    volumes:
+      - ./catalog-service:/var/www/html/catalog-service:delegated
+    depends_on:
+      - php
+      - mysql
+    networks:
+      - laravel
+
+  email-service:
+    build:
+      context: .
+      dockerfile: nginx.dockerfile
+    container_name: email-service
+    ports:
+      - 81:81
+    volumes:
+      - ./email-service:/var/www/html/email-service:delegated
+    depends_on:
+      - php
+      - mysql
+    networks:
+      - laravel
+
+  mysql:
+    image: mariadb:10.6
+    container_name: mysql
+    restart: unless-stopped
+    tty: true
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_DATABASE: homestead
+      MYSQL_USER: homestead
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: secret
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    networks:
+      - laravel
+
+  php:
+    build:
+      context: .
+      dockerfile: php.dockerfile
+    container_name: php
+    volumes:
+      - ./:/var/www/html:delegated
+    networks:
+      - laravel
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data_container:/data/db
+    networks:
+      - laravel
+
+  shop-cart-service:
+    build:
+      context: .
+      dockerfile: node.dockerfile
+    volumes:
+      - .:/shop-cart-service
+      - /shop-cart-service/node_modules
+    ports:
+      - 3000:3000
+    command: npm run start:dev
+    depends_on:
+      - mongodb
+    networks:
+      - laravel
+
+  kafka:
+    image: docker.io/bitnami/kafka:3.5
+    ports:
+      - "9092:9092"
+    volumes:
+      - "kafka_data:/bitnami"
+    environment:
+      # KRaft settings
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      # Listeners
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+
+volumes:
+    kafka_data:
+      driver: local
+    mongodb_data_container:
