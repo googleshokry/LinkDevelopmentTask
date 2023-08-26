@@ -4,13 +4,28 @@ networks:
   laravel:
 
 services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: nginx.dockerfile
+    container_name: api-gateway
+    ports:
+      - 80:80
+    volumes:
+      - ./api-gateway:/var/www/html/api-gateway:delegated
+    depends_on:
+      - php
+      - mysql
+    networks:
+      - laravel
+
   catalog-service:
     build:
       context: .
       dockerfile: nginx.dockerfile
     container_name: catalog-service
     ports:
-      - 80:80
+      - 81:81
     volumes:
       - ./catalog-service:/var/www/html/catalog-service:delegated
     depends_on:
@@ -25,7 +40,7 @@ services:
       dockerfile: nginx.dockerfile
     container_name: email-service
     ports:
-      - 81:81
+      - 82:82
     volumes:
       - ./email-service:/var/www/html/email-service:delegated
     depends_on:
