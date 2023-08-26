@@ -42,9 +42,6 @@ services:
     ports:
       - 3306:3306
     environment:
-      MYSQL_DATABASE: homestead
-      MYSQL_USER: homestead
-      MYSQL_PASSWORD: secret
       MYSQL_ROOT_PASSWORD: secret
       SERVICE_TAGS: dev
       SERVICE_NAME: mysql
@@ -103,7 +100,69 @@ services:
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
       - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
 
+  artisan-catalog:
+    build:
+      context: .
+      dockerfile: php.dockerfile
+    container_name: artisan-catalog
+    volumes:
+      - ./catalog-service:/var/www/html/catalog-service:delegated
+    depends_on:
+      - mysql
+    working_dir: /var/www/html/catalog-service
+    user: laravel
+    entrypoint: [ 'php', '/var/www/html/catalog-service/artisan' ]
+    networks:
+      - laravel
+
+
+  artisan-email:
+    build:
+      context: .
+      dockerfile: php.dockerfile
+    container_name: artisan-email
+    volumes:
+      - ./email-service:/var/www/html/email-service:delegated
+    depends_on:
+      - mysql
+    working_dir: /var/www/html/email-service
+    user: laravel
+    entrypoint: [ 'php', '/var/www/html/email-service/artisan' ]
+    networks:
+      - laravel
+
+  composer-email:
+    build:
+      context: .
+      dockerfile: composer.dockerfile
+    container_name: composer-email
+    volumes:
+      - ./email-service:/var/www/html/email-service
+    working_dir: /var/www/html/email-service
+    depends_on:
+      - php
+      - mysql
+    user: laravel
+    entrypoint: [ 'composer', '--ignore-platform-reqs' ]
+    networks:
+      - laravel
+
+  composer-catalog:
+    build:
+      context: .
+      dockerfile: composer.dockerfile
+    container_name: composer-catalog
+    volumes:
+      - ./catalog-service:/var/www/html/catalog-service
+    working_dir: /var/www/html/catalog-service
+    depends_on:
+      - php
+      - mysql
+    user: laravel
+    entrypoint: [ 'composer', '--ignore-platform-reqs' ]
+    networks:
+      - laravel
 volumes:
-    kafka_data:
-      driver: local
-    mongodb_data_container:
+  kafka_data:
+    driver: local
+  mongodb_data_container:
