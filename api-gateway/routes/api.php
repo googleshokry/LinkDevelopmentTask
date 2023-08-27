@@ -18,12 +18,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::group([
-    'middleware' => 'api'
+    'middleware' => 'auth'
 ], function () {
 
     // Auth Routes
     Route::group(['prefix' => 'auth'], function () {
-        Route::post('login', [AuthController::class, 'login']);
+        Route::post('login', [AuthController::class, 'login'])->withoutMiddleware('auth');
         Route::post('logout', [AuthController::class, 'logout']);
         Route::post('refresh', [AuthController::class, 'refresh']);
         Route::post('me', [AuthController::class, 'me']);
