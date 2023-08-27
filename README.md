@@ -14,9 +14,12 @@ running.
 - `mysql -u"root" -p"secret"`
 - `CREATE DATABASE catalog;`
 - `CREATE DATABASE emailservice;`
+- `CREATE DATABASE gateway;`
   exit to root folder
 - `docker-compose run --rm artisan-email migrate`
 - `docker-compose run --rm artisan-catalog migrate`
+- `docker-compose run --rm artisan-gateway migrate`
+- `docker-compose run --rm artisan-gateway db:seed`
 
 Note:-
 The following are built for our web server, with their exposed ports detailed:
@@ -26,3 +29,7 @@ The following are built for our web server, with their exposed ports detailed:
 - **CatalogService** - `:80`
 - **EmailService** - `:81`
 - **MySql** - `:3306`
+
+my application you can access any microservices through api gateway Service and other microservice can't access outside server
+
+

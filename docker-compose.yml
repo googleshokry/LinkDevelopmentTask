@@ -130,6 +130,20 @@ services:
     networks:
       - laravel
 
+  artisan-gateway:
+    build:
+      context: .
+      dockerfile: php.dockerfile
+    container_name: artisan-gateway
+    volumes:
+      - ./api-gateway:/var/www/html/api-gateway:delegated
+    depends_on:
+      - mysql
+    working_dir: /var/www/html/api-gateway
+    user: laravel
+    entrypoint: [ 'php', '/var/www/html/api-gateway/artisan' ]
+    networks:
+      - laravel
 
   artisan-email:
     build:
