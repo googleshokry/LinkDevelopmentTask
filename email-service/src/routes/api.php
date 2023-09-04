@@ -1,6 +1,6 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\HealthCheckController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,6 +14,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::group([], function () {
+    Route::get('health', HealthCheckController::class);
+
+    // Email Routes todo
+    Route::group(['prefix' => 'email'], function () {
+        Route::post('/send', [EmailController::class, 'send']);
+    });
 });
