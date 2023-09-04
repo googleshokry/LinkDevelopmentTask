@@ -2,30 +2,38 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Http;
 use Spatie\Health\Commands\RunHealthChecksCommand;
 use Spatie\Health\ResultStores\ResultStore;
-use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
 
 class HealthCheckController extends Controller
 {
-    public function __invoke(Request $request, ResultStore $resultStore): Response
+    public function __invoke(Request $request, ResultStore $resultStore): JsonResponse
     {
-        if ($request->has('fresh') || config('health.oh_dear_endpoint.always_send_fresh_results')) {
-            Artisan::call(RunHealthChecksCommand::class);
+        if (isset($request->service) && $request->service == "apigateway") {
+            if ($request->has('fresh') || config('health.oh_dear_endpoint.always_send_fresh_results')) {
+                Artisan::call(RunHealthChecksCommand::class);
+            }
+            if (!($resultStore->latestResults()?->allChecksOk())) {
+                return response()->json(["message" => "Application not healthy"]);
+            }
+            return response()->json(["message" => "Application is healthy"]);
+
+        } elseif (isset($request->service) && $request->service == "catalog") {
+            $response = Http::acceptJson()->get(env('CATALOG_SERVICE_API') . '/health');
+            return response()->json($response->json());
+        } elseif (isset($request->service) && $request->service == "email") {
+            $response = Http::acceptJson()->get(env('EMAIL_SERVICE_API') . '/health');
+            return response()->json($response->json());
+        } elseif (isset($request->service) && $request->service == "shopingcart") {
+            $response = Http::acceptJson()->get(env('SHPPINGCART_SERVICE_API') . '/health');
+            return response()->json($response->json());
         }
 
-        if (! ($resultStore->latestResults()?->allChecksOk())) {
-            throw new ServiceUnavailableHttpException(message: 'Application not healthy');
-        }
-
-        return response([
-            'healthy' => true,
-        ])
-            ->header('Content-Type', 'application/json')
-            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+        return response()->json(['message' => 'not found service']);
     }
 
 }

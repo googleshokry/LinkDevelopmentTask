@@ -23,11 +23,11 @@ class AppServiceProvider extends ServiceProvider
         //
         Health::checks([
             EnvironmentCheck::new(),
-            CacheCheck::new(),
-            CpuLoadCheck::new()
-                ->failWhenLoadIsHigherInTheLast5Minutes(2.0)
-                ->failWhenLoadIsHigherInTheLast15Minutes(1.5),
-            DatabaseCheck::new(),
+//            CacheCheck::new(),
+//            CpuLoadCheck::new()
+//                ->failWhenLoadIsHigherInTheLast5Minutes(2.0)
+//                ->failWhenLoadIsHigherInTheLast15Minutes(1.5),
+//            DatabaseCheck::new(),
             DebugModeCheck::new(),
 //            QueueCheck::new(),
 //            ScheduleCheck::new(),

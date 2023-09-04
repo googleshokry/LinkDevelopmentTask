@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\HealthCheckController;
 use App\Http\Controllers\ProductsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -20,7 +21,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::group([], function () {
-    Route::get('health', \Spatie\Health\Http\Controllers\SimpleHealthCheckController::class);
+    Route::get('health', HealthCheckController::class);
 
     // Product Routes todo
     Route::group(['prefix' => 'product'], function () {
