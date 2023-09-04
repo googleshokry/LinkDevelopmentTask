@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 class ProductController extends Controller
@@ -9,22 +10,25 @@ class ProductController extends Controller
 
     public function index()
     {
-        $response = Http::acceptJson()->get('http://host.docker.internal:81/api/product');
+        $response = Http::acceptJson()->get(env('CATALOG_SERVICE_API') . '/product');
         return $response->json();
     }
 
-    public function store()
+    public function store(Request $request)
     {
-        // todo
+        $response = Http::acceptJson()->post(env('CATALOG_SERVICE_API') . '/product/store', $request->all());
+        return $response->json();
     }
 
-    public function update()
+    public function update(Request $request, $id)
     {
-        // todo
+        $response = Http::acceptJson()->patch(env('CATALOG_SERVICE_API') . '/product/' . $id . '/update', $request->all());
+        return $response->json();
     }
 
-    public function delete()
+    public function delete($id)
     {
-        // todo
+        $response = Http::acceptJson()->delete(env('CATALOG_SERVICE_API') . '/product/' . $id . '/delete');
+        return $response->json();
     }
 }

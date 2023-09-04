@@ -1,0 +1,32 @@
+version: '3'
+
+networks:
+  laravel:
+
+services:
+  mongodb:
+    image: mongo:latest
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data_container:/data/db
+    networks:
+      - laravel
+
+  shop-cart-service:
+    build:
+      context: ..
+      dockerfile: ../node.dockerfile
+    volumes:
+      - .:/shop-cart-service
+      - /shop-cart-service/node_modules
+    ports:
+      - 3000:3000
+    command: npm run start:dev
+    depends_on:
+      - mongodb
+    networks:
+      - laravel
+
+volumes:
+  mongodb_data_container:

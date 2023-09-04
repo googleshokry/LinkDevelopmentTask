@@ -2,42 +2,43 @@ version: '3'
 
 networks:
   laravel:
-    external: true
+    driver: bridge
 
 services:
-  app:
+  catalog_service:
     build:
       context: ./dockerfiles
       dockerfile: nginx.dockerfile
       args:
         - UID=${UID:-1000}
         - GID=${GID:-1000}
+    container_name: catalog_service
     ports:
-      - "80:80"
+      - "81:80"
     volumes:
       - ./src:/var/www/html:delegated
     depends_on:
       - php
-      - mysqlapigateway
+      - mysqlcatalogservice
 
     networks:
       - laravel
 
-  mysqlapigateway:
+  mysqlcatalogservice:
     image: mariadb:10.6
     restart: unless-stopped
     tty: true
     ports:
-      - "3306:3306"
+      - "13306:3306"
     volumes:
       - './db:/var/lib/mysql'
     environment:
-      MYSQL_DATABASE: apigateway
+      MYSQL_DATABASE: catalogservice
       MYSQL_USER: root
       MYSQL_PASSWORD: secret
       MYSQL_ROOT_PASSWORD: secret
       SERVICE_TAGS: dev
-      SERVICE_NAME: mysqlapigateway
+      SERVICE_NAME: mysqlcatalogservice
     networks:
       - laravel
 
@@ -49,13 +50,13 @@ services:
         - UID=${UID:-1000}
         - GID=${GID:-1000}
     ports:
-      - "9000:9000"
+      - "9001:9000"
     volumes:
       - ./src:/var/www/html:delegated
     networks:
       - laravel
 
-  composerapigateway:
+  composercatalogservice:
     build:
       context: ./dockerfiles
       dockerfile: php.dockerfile
@@ -70,7 +71,7 @@ services:
     networks:
       - laravel
 
-  artisanapigateway:
+  artisancatalogservice:
     build:
       context: ./dockerfiles
       dockerfile: php.dockerfile
@@ -80,7 +81,7 @@ services:
     volumes:
       - ./src:/var/www/html:delegated
     depends_on:
-      - mysqlapigateway
+      - mysqlcatalogservice
     entrypoint: [ 'php', '/var/www/html/artisan' ]
     networks:
       - laravel

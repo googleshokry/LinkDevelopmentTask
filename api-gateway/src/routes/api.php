@@ -29,12 +29,12 @@ Route::group([
         Route::post('me', [AuthController::class, 'me']);
     });
 
-    // Product Routes todo
+    // Product Routes
     Route::group(['prefix' => 'product'], function () {
         Route::get('/', [ProductController::class, 'index']);
         Route::post('store', [ProductController::class, 'store']);
-        Route::patch('update', [ProductController::class, 'update']);
-        Route::delete('delete', [ProductController::class, 'delete']);
+        Route::patch('{id}/update', [ProductController::class, 'update']);
+        Route::delete('{id}/delete', [ProductController::class, 'delete']);
     });
     // Email Service Route todo
     Route::group(['prefix' => 'email'], function () {

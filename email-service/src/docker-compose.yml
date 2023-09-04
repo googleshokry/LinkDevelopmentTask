@@ -5,7 +5,7 @@ networks:
 
 
 services:
-  app:
+  email_service:
     build:
       context: ./dockerfiles
       dockerfile: nginx.dockerfile
